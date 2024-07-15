@@ -2,7 +2,7 @@
 
 namespace Pagination.UnitTests.Models
 {
-    public class ClientSearchablePageableDto : PageableSearchRequest
+    public class ClientPageableSearchDto : PageableSearchRequest
     {
     }
 }

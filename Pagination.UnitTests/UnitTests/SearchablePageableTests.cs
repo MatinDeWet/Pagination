@@ -10,7 +10,7 @@ namespace Pagination.UnitTests.UnitTests
         {
             // Arrange
 
-            var pageable = new ClientSearchablePageableDto
+            var pageable = new ClientPageableSearchDto
             {
                 SearchTerms = "One Two Three"
             };
