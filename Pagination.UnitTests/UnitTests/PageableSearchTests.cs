@@ -2,11 +2,10 @@
 
 namespace Pagination.UnitTests.UnitTests
 {
-    public class SearchablePageableTests
+    public class PageableSearchTests
     {
-
         [Fact]
-        public void SearchablePageableRequest_WhenSearchTextIsGiven_ShouldSeperateItIntoStringList()
+        public void PageableSearchRequest_WhenSearchTextIsGiven_ShouldSeperateItIntoStringList()
         {
             // Arrange
 
