@@ -1,7 +1,7 @@
 # Pagination
 
 [![CodeFactor](https://www.codefactor.io/repository/github/matindewet/pagination/badge)](https://www.codefactor.io/repository/github/matindewet/pagination)
-[![NuGet Version](https://img.shields.io/nuget/v/MatinDeWet.Pager)](https://www.nuget.org/packages/MatinDeWet.Pager) 
+[![NuGet Version](https://img.shields.io/nuget/v/MatinDeWet.Pagination)](https://www.nuget.org/packages/MatinDeWet.Pagination) 
 [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/MatinDeWet/Pagination/BuildTest.yml)](https://github.com/MatinDeWet/Pagination)
 
 Pagination was designed to make it easy to paginate data in .NET applications making use of Entity Framework Core. It is a simple library that can be used to paginate any collection of data. It is designed to be easy to use and easy to extend.
