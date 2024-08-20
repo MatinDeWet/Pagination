@@ -1,4 +1,5 @@
-﻿using Pagination.UnitTests.Context;
+﻿using Pagination.Enums;
+using Pagination.UnitTests.Context;
 using Pagination.UnitTests.Models;
 
 namespace Pagination.UnitTests.UnitTests
@@ -18,7 +19,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -35,7 +38,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -52,7 +57,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -69,7 +76,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -86,7 +95,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -103,7 +114,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -120,7 +133,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 2,
-                PageSize = 20
+                PageSize = 20,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -137,7 +152,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 2,
-                PageSize = 20
+                PageSize = 20,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -154,7 +171,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 2,
-                PageSize = 20
+                PageSize = 20,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -171,7 +190,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 2,
-                PageSize = 20
+                PageSize = 20,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -188,7 +209,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 2,
-                PageSize = 20
+                PageSize = 20,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -205,7 +228,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 3,
-                PageSize = 30
+                PageSize = 30,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -222,7 +247,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 3,
-                PageSize = 30
+                PageSize = 30,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -239,7 +266,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 3,
-                PageSize = 30
+                PageSize = 30,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -256,7 +285,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 3,
-                PageSize = 30
+                PageSize = 30,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -273,7 +304,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 3,
-                PageSize = 30
+                PageSize = 30,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -290,7 +323,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 5,
-                PageSize = 50
+                PageSize = 50,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -307,7 +342,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 5,
-                PageSize = 50
+                PageSize = 50,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -324,7 +361,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 5,
-                PageSize = 50
+                PageSize = 50,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -341,7 +380,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 5,
-                PageSize = 50
+                PageSize = 50,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -358,7 +399,9 @@ namespace Pagination.UnitTests.UnitTests
             var request = new ClientPageableDto
             {
                 PageNumber = 5,
-                PageSize = 50
+                PageSize = 50,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
             };
 
             // Act
@@ -366,6 +409,64 @@ namespace Pagination.UnitTests.UnitTests
 
             // Assert
             Assert.Equal(2, result.PageCount);
+        }
+
+        [Fact]
+        public async Task ToPageableListAsync__ReturnsPageableResponseWithCorrect__OrderedAscendingData()
+        {
+            // Arrange
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 10,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
+            };
+
+            // Act
+            var result = await _context.Clients.ToPageableListAsync(request, CancellationToken.None);
+
+            // Assert
+            var expected = _context.Clients.OrderBy(x => x.Id).Take(10).ToList();
+            Assert.Equal(expected, result.Data);
+        }
+
+        [Fact]
+        public async Task ToPageableListAsync__ReturnsPageableResponseWithCorrect__OrderedDescendingData()
+        {
+            // Arrange
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 10,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Descending
+            };
+
+            // Act
+            var result = await _context.Clients.ToPageableListAsync(request, CancellationToken.None);
+
+            // Assert
+            var expected = _context.Clients.OrderByDescending(x => x.Id).Take(10).ToList();
+            Assert.Equal(expected, result.Data);
+        }
+
+        [Fact]
+        public async Task ToPageableListAsync__ThrowsArgumentNullException__WhenOrderByIsNullOrEmpty()
+        {
+            // Arrange
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 10,
+                OrderBy = string.Empty
+            };
+
+            // Act
+            async Task Act() => await _context.Clients.ToPageableListAsync(request, CancellationToken.None);
+
+            // Assert
+            await Assert.ThrowsAsync<ArgumentNullException>(Act);
         }
     }
 }

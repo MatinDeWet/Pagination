@@ -3,36 +3,74 @@ using Pagination.Enums;
 using Pagination.Helpers;
 using Pagination.Models;
 using System.Globalization;
+using System.Linq.Expressions;
 
 namespace Pagination
 {
     public static class PageableExtensions
     {
-        public static async Task<PageableResponse<T>> ToPageableListAsync<T>(this IQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
+        public static async Task<PageableResponse<T>> ToPageableListAsync<T>(this IOrderedQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
         {
             int totalRecords = await query.CountAsync(cancellationToken);
+
+            IQueryable<T> pageQuery = query.AsQueryable();
 
             if (request.PageNumber > 0)
             {
                 int start = (request.PageNumber - 1) * request.PageSize;
-                query = query.Skip(start);
+                pageQuery = pageQuery.Skip(start);
             }
 
             if (request.PageSize >= 0)
-                query = query.Take(request.PageSize);
+                pageQuery = pageQuery.Take(request.PageSize);
 
             int pageCount = (int)Math.Ceiling(totalRecords / (double)request.PageSize);
 
             var result = new PageableResponse<T>
             {
-                Data = await query.ToListAsync(cancellationToken),
+                Data = await pageQuery.ToListAsync(cancellationToken),
                 PageSize = request.PageSize,
                 PageNumber = request.PageNumber,
                 PageCount = pageCount,
-                TotalRecords = totalRecords
+                TotalRecords = totalRecords,
+
+                OrderDirection = request.OrderDirection,
+                OrderBy = request.OrderBy,
             };
 
             return result;
+        }
+
+        public static Task<PageableResponse<T>> ToPageableListAsync<T>(this IQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(request.OrderBy))
+            {
+                throw new ArgumentNullException(nameof(request.OrderBy));
+            }
+
+            if (request.OrderDirection == OrderDirectionEnum.Ascending)
+                return query.OrderBy(request.OrderBy).ToPageableListAsync(request, cancellationToken);
+            else
+                return query.OrderByDescending(request.OrderBy).ToPageableListAsync(request, cancellationToken);
+        }
+
+        public static IOrderedQueryable<T> OrderBy<T>(this IQueryable<T> source, string propertyName)
+        {
+            return source.OrderBy(ToLambda<T>(propertyName));
+        }
+
+        public static IOrderedQueryable<T> OrderByDescending<T>(this IQueryable<T> source, string propertyName)
+        {
+            return source.OrderByDescending(ToLambda<T>(propertyName));
+        }
+
+        private static Expression<Func<T, object>> ToLambda<T>(string propertyName)
+        {
+            var parameter = Expression.Parameter(typeof(T));
+            var property = Expression.Property(parameter, propertyName);
+            var propAsObject = Expression.Convert(property, typeof(object));
+
+            return Expression.Lambda<Func<T, object>>(propAsObject, parameter);
         }
 
         public static string GetSearchPatternFormat(ExpressionMatchTypeEnum matchType)

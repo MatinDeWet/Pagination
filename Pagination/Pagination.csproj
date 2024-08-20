@@ -7,7 +7,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 	<PackageId>MatinDeWet.Pagination</PackageId>
-	<Version>1.0.0</Version>
+	<Version>2.0.0</Version>
 	<Authors>MatinDeWet</Authors>
 	<Product>Pagination</Product>
 	<Description>Pagination allows you to create paged results while making use of entity framework core</Description>
@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
   </ItemGroup>
 
 </Project>
