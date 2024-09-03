@@ -7,7 +7,7 @@ namespace Pagination.Models
         /// <summary>
         /// Gets or sets the data. The collection of entities.
         /// </summary>
-        public IEnumerable<T> Data { get; set; }
+        public IEnumerable<T> Data { get; set; } = null!;
 
         /// <summary>
         /// Gets or sets the total records. The total number of records before pagination is applied.
