@@ -25,11 +25,11 @@ namespace Pagination.UnitTests.UnitTests
         }
     }
 
-    public class pageabletests : IClassFixture<ClientFixture>
+    public class Pageabletests : IClassFixture<ClientFixture>
     {
         private readonly IQueryable<Client> _clients;
 
-        public pageabletests(ClientFixture fixture)
+        public Pageabletests(ClientFixture fixture)
         {
             _clients = fixture.ClientsQueryable;
         }
