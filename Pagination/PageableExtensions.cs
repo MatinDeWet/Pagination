@@ -77,7 +77,7 @@ namespace Pagination
         /// <exception cref="ArgumentNullException">
         /// Thrown if the OrderBy property of the request is null, empty, or whitespace.
         /// </exception>
-        public static Task<PageableResponse<T>> ToPageableListAsync<T>(this IQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
+        public static async Task<PageableResponse<T>> ToPageableListAsync<T>(this IQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(request.OrderBy))
             {
@@ -85,9 +85,9 @@ namespace Pagination
             }
 
             if (request.OrderDirection == OrderDirectionEnum.Ascending)
-                return query.OrderBy(request.OrderBy).ToPageableListAsync(request, cancellationToken);
+                return await query.OrderBy(request.OrderBy).ToPageableListAsync(request, cancellationToken);
             else
-                return query.OrderByDescending(request.OrderBy).ToPageableListAsync(request, cancellationToken);
+                return await query.OrderByDescending(request.OrderBy).ToPageableListAsync(request, cancellationToken);
         }
 
         /// <summary>
@@ -111,22 +111,22 @@ namespace Pagination
         /// <exception cref="ArgumentNullException">
         /// Thrown if the orderKeySelector is null when no OrderBy value is provided.
         /// </exception>
-        public static Task<PageableResponse<T>> ToPageableListAsync<T, TKey>(
+        public static async Task<PageableResponse<T>> ToPageableListAsync<T, TKey>(
             this IQueryable<T> query,
             Expression<Func<T, TKey>> orderKeySelector,
             PageableRequest request,
             CancellationToken cancellationToken)
         {
             if (!string.IsNullOrWhiteSpace(request.OrderBy))
-                return query.ToPageableListAsync(request, cancellationToken);
+                return await query.ToPageableListAsync(request, cancellationToken);
 
             if (orderKeySelector == null)
                 throw new ArgumentNullException(nameof(orderKeySelector));
 
             if (request.OrderDirection == OrderDirectionEnum.Ascending)
-                return query.OrderBy(orderKeySelector).ToPageableListAsync(request, cancellationToken);
+                return await query.OrderBy(orderKeySelector).ToPageableListAsync(request, cancellationToken);
             else
-                return query.OrderByDescending(orderKeySelector).ToPageableListAsync(request, cancellationToken);
+                return await query.OrderByDescending(orderKeySelector).ToPageableListAsync(request, cancellationToken);
         }
 
         /// <summary>
