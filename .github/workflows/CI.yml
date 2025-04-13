@@ -1,0 +1,65 @@
+name: Pagination CI Pipeline
+
+on:
+  push:
+    branches: [ master, develop ]
+    paths-ignore:
+      - README.md
+      - .gitignore
+  pull_request:
+    branches: [ master, develop ]
+    paths-ignore:
+      - README.md
+      - .gitignore
+  workflow_dispatch:
+
+
+# Add this permissions block at the top level
+permissions:
+  contents: read
+  checks: write    # Required for test reporter to create check runs
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build --no-restore
+      
+    - name: Test with coverage
+      run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage" --results-directory ./TestResults
+      
+    - name: Generate test report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()    # run this step even if previous step failed
+      with:
+        name: xUnit Tests
+        path: '**/TestResults/*.trx'
+        reporter: dotnet-trx
+        fail-on-error: false
+        
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        directory: ./TestResults
+        fail_ci_if_error: false
+        verbose: true
+        
+    - name: Upload test results as artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: ./TestResults
+        retention-days: 30

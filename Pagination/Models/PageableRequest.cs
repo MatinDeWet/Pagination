@@ -2,6 +2,9 @@
 
 namespace Pagination.Models
 {
+    /// <summary>
+    /// Represents a request for paginated data.
+    /// </summary>
     public abstract class PageableRequest
     {
         /// <summary>
@@ -15,7 +18,7 @@ namespace Pagination.Models
         public int PageSize { get; set; } = 10;
 
         /// <summary>
-        /// Gets or sets the order by. Refering to the property name of the entity.
+        /// Gets or sets the order by. Refers to the property name of the entity.
         /// </summary>
         public string OrderBy { get; set; } = string.Empty;
 

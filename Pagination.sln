@@ -9,8 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pagination.UnitTests", "Pag
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{041A3230-1026-4607-B267-2DEDC31938D1}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\BuildTest.yml = .github\workflows\BuildTest.yml
+		.github\workflows\CI.yml = .github\workflows\CI.yml
+		icon.png = icon.png
 		LICENSE.txt = LICENSE.txt
+		nuget-publish.yml = nuget-publish.yml
 		README.md = README.md
 	EndProjectSection
 EndProject

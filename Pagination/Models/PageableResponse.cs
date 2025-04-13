@@ -2,6 +2,10 @@
 
 namespace Pagination.Models
 {
+    /// <summary>
+    /// Represents a paginated response containing a collection of entities and metadata about the pagination.
+    /// </summary>
+    /// <typeparam name="T">The type of the entities in the data collection.</typeparam>
     public class PageableResponse<T>
     {
         /// <summary>

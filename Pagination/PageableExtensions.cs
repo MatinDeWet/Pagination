@@ -29,11 +29,8 @@ namespace Pagination
         /// </exception>
         public static async Task<PageableResponse<T>> ToPageableListAsync<T>(this IOrderedQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
         {
-            if (request.PageNumber <= 0)
-                throw new ArgumentOutOfRangeException($"{nameof(request.PageNumber)} can not be less than or equal to 0");
-
-            if (request.PageSize <= 0)
-                throw new ArgumentOutOfRangeException($"{nameof(request.PageSize)} can not be less than or equal to 0");
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(request.PageNumber, 0, nameof(request.PageNumber));
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(request.PageSize, 0, nameof(request.PageSize));
 
             int totalRecords = await query.CountAsync(cancellationToken);
 
@@ -79,10 +76,7 @@ namespace Pagination
         /// </exception>
         public static async Task<PageableResponse<T>> ToPageableListAsync<T>(this IQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrWhiteSpace(request.OrderBy))
-            {
-                throw new ArgumentNullException(nameof(request.OrderBy));
-            }
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(nameof(request));
 
             if (request.OrderDirection == OrderDirectionEnum.Ascending)
                 return await query.OrderBy(request.OrderBy).ToPageableListAsync(request, cancellationToken);
@@ -120,8 +114,7 @@ namespace Pagination
             if (!string.IsNullOrWhiteSpace(request.OrderBy))
                 return await query.ToPageableListAsync(request, cancellationToken);
 
-            if (orderKeySelector == null)
-                throw new ArgumentNullException(nameof(orderKeySelector));
+            ArgumentNullException.ThrowIfNull(orderKeySelector, nameof(orderKeySelector));
 
             if (request.OrderDirection == OrderDirectionEnum.Ascending)
                 return await query.OrderBy(orderKeySelector).ToPageableListAsync(request, cancellationToken);
