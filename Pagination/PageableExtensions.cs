@@ -29,10 +29,10 @@ namespace Pagination
         /// </exception>
         public static async Task<PageableResponse<T>> ToPageableListAsync<T>(this IOrderedQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
         {
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(request.PageNumber, 0, nameof(request.PageNumber));
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(request.PageSize, 0, nameof(request.PageSize));
+            ValidatePageableRequest(request);
 
-            int totalRecords = await query.CountAsync(cancellationToken);
+            int totalRecords = await query.CountAsync(cancellationToken)
+                .ConfigureAwait(false);
 
             IQueryable<T> pageQuery = query.AsQueryable();
 
@@ -44,7 +44,7 @@ namespace Pagination
 
             var result = new PageableResponse<T>
             {
-                Data = await pageQuery.ToListAsync(cancellationToken),
+                Data = await pageQuery.ToListAsync(cancellationToken).ConfigureAwait(false),
                 PageSize = request.PageSize,
                 PageNumber = request.PageNumber,
                 PageCount = pageCount,
@@ -74,14 +74,15 @@ namespace Pagination
         /// <exception cref="ArgumentNullException">
         /// Thrown if the OrderBy property of the request is null, empty, or whitespace.
         /// </exception>
-        public static async Task<PageableResponse<T>> ToPageableListAsync<T>(this IQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
+        public static Task<PageableResponse<T>> ToPageableListAsync<T>(this IQueryable<T> query, PageableRequest request, CancellationToken cancellationToken)
         {
-            ArgumentNullException.ThrowIfNullOrWhiteSpace(nameof(request));
+            ValidatePageableRequest(request);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(request.OrderBy, nameof(request.OrderBy));
 
             if (request.OrderDirection == OrderDirectionEnum.Ascending)
-                return await query.OrderBy(request.OrderBy).ToPageableListAsync(request, cancellationToken);
+                return query.OrderBy(request.OrderBy).ToPageableListAsync(request, cancellationToken);
             else
-                return await query.OrderByDescending(request.OrderBy).ToPageableListAsync(request, cancellationToken);
+                return query.OrderByDescending(request.OrderBy).ToPageableListAsync(request, cancellationToken);
         }
 
         /// <summary>
@@ -105,21 +106,23 @@ namespace Pagination
         /// <exception cref="ArgumentNullException">
         /// Thrown if the orderKeySelector is null when no OrderBy value is provided.
         /// </exception>
-        public static async Task<PageableResponse<T>> ToPageableListAsync<T, TKey>(
+        public static Task<PageableResponse<T>> ToPageableListAsync<T, TKey>(
             this IQueryable<T> query,
             Expression<Func<T, TKey>> orderKeySelector,
             PageableRequest request,
             CancellationToken cancellationToken)
         {
+            ValidatePageableRequest(request);
+
             if (!string.IsNullOrWhiteSpace(request.OrderBy))
-                return await query.ToPageableListAsync(request, cancellationToken);
+                return query.ToPageableListAsync(request, cancellationToken);
 
             ArgumentNullException.ThrowIfNull(orderKeySelector, nameof(orderKeySelector));
 
             if (request.OrderDirection == OrderDirectionEnum.Ascending)
-                return await query.OrderBy(orderKeySelector).ToPageableListAsync(request, cancellationToken);
+                return query.OrderBy(orderKeySelector).ToPageableListAsync(request, cancellationToken);
             else
-                return await query.OrderByDescending(orderKeySelector).ToPageableListAsync(request, cancellationToken);
+                return query.OrderByDescending(orderKeySelector).ToPageableListAsync(request, cancellationToken);
         }
 
         /// <summary>
@@ -160,11 +163,18 @@ namespace Pagination
         /// </returns>
         private static Expression<Func<T, object>> ToLambda<T>(string propertyName)
         {
-            var parameter = Expression.Parameter(typeof(T));
-            var property = Expression.Property(parameter, propertyName);
-            var propAsObject = Expression.Convert(property, typeof(object));
+            ParameterExpression? parameter = Expression.Parameter(typeof(T));
+            MemberExpression? property = Expression.Property(parameter, propertyName);
+            UnaryExpression? propAsObject = Expression.Convert(property, typeof(object));
 
             return Expression.Lambda<Func<T, object>>(propAsObject, parameter);
+        }
+
+        private static void ValidatePageableRequest(PageableRequest request)
+        {
+            ArgumentNullException.ThrowIfNull(request, nameof(request));
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(request.PageNumber, 0, nameof(request.PageNumber));
+            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(request.PageSize, 0, nameof(request.PageSize));
         }
     }
 }

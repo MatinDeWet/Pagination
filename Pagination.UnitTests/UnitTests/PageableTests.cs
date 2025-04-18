@@ -110,5 +110,117 @@ namespace Pagination.UnitTests.UnitTests
             var expected = list.OrderByDescending(c => c.FirstName).ToList();
             list.ShouldBe(expected);
         }
+
+        [Fact]
+        public async Task ToPageableListAsync_WhenPageSizeIsZero_ShouldThrowArgumentOutOfRangeException()
+        {
+            // Arrange
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 0,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Ascending
+            };
+            CancellationToken cancellationToken = CancellationToken.None;
+
+            // Act
+            Func<Task> act = async () => { await _clients.ToPageableListAsync(request, cancellationToken); };
+
+            // Assert
+            var exception = await Should.ThrowAsync<ArgumentOutOfRangeException>(act);
+            exception.Message.ShouldContain("PageSize");
+        }
+
+        [Fact]
+        public async Task ToPageableListAsync_WhenOrderByIsNull_ShouldThrowArgumentNullException()
+        {
+            // Arrange
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 100,
+                OrderBy = null!,
+                OrderDirection = OrderDirectionEnum.Ascending
+            };
+            CancellationToken cancellationToken = CancellationToken.None;
+
+            // Act
+            Func<Task> act = async () => { await _clients.ToPageableListAsync(request, cancellationToken); };
+
+            // Assert
+            var exception = await Should.ThrowAsync<ArgumentNullException>(act);
+            exception.Message.ShouldContain("OrderBy");
+        }
+
+        [Fact]
+        public async Task ToPageableListAsync_WhenOrderDirectionIsDescending_ShouldReturnDataInDescendingOrder()
+        {
+            // Arrange
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 100,
+                OrderBy = "Id",
+                OrderDirection = OrderDirectionEnum.Descending
+            };
+            CancellationToken cancellationToken = CancellationToken.None;
+
+            // Act
+            var response = await _clients.ToPageableListAsync(request, cancellationToken);
+
+            // Assert
+            response.Data.First().Id.ShouldBe(1000);
+            response.Data.Last().Id.ShouldBe(901);
+        }
+
+        [Fact]
+        public async Task ToPageableListAsync_WithCustomOrderKeySelector_ShouldOrderByKeySelector()
+        {
+            // Arrange
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 100,
+                OrderBy = null!,
+                OrderDirection = OrderDirectionEnum.Ascending
+            };
+            CancellationToken cancellationToken = CancellationToken.None;
+
+            // Act
+            var response = await _clients.ToPageableListAsync(c => c.LastName, request, cancellationToken);
+
+            // Assert
+            var expected = _clients.OrderBy(c => c.LastName).Take(100).ToList();
+            response.Data.ShouldBe(expected);
+        }
+
+        [Fact]
+        public void OrderBy_WhenPropertyDoesNotExist_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var query = _clients;
+
+            // Act
+            Action act = () => query.OrderBy("NonExistentProperty");
+
+            // Assert
+            var exception = Should.Throw<ArgumentException>(act);
+            exception.Message.ShouldContain("NonExistentProperty");
+        }
+
+        [Fact]
+        public void OrderByDescending_WhenPropertyDoesNotExist_ShouldThrowArgumentException()
+        {
+            // Arrange
+            var query = _clients;
+
+            // Act
+            Action act = () => query.OrderByDescending("NonExistentProperty");
+
+            // Assert
+            var exception = Should.Throw<ArgumentException>(act);
+            exception.Message.ShouldContain("NonExistentProperty");
+        }
     }
 }
