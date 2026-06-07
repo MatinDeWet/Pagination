@@ -361,3 +361,12 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# JetBrains Rider / IntelliJ
+.idea/
+*.iml
+*.sln.iml
+
+# macOS
+.DS_Store
+**/.DS_Store

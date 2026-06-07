@@ -7,7 +7,8 @@
 Pagination is a .NET library designed to simplify the process of paginating and ordering data in applications using Entity Framework Core. It provides easy-to-use and extendable methods to paginate any collection of data.
 
 ## Features
-- **Easy Pagination**: Paginate any `IQueryable<T>` collection with minimal code.
+- **Offset Pagination**: Paginate any `IQueryable<T>` with page number and page size.
+- **Cursor Pagination**: Page forward efficiently with opaque cursor tokens.
 - **Dynamic Ordering**: Order data dynamically based on runtime parameters.
 - **Asynchronous Execution**: Fully supports asynchronous operations with EF Core.
 
@@ -15,74 +16,108 @@ Pagination is a .NET library designed to simplify the process of paginating and 
 You can install the Pagination library via NuGet: `dotnet add package MatinDeWet.Pagination`
 
 ## Usage
-To use Pagination, call the `ToPageableListAsync` extension method on an `IQueryable<T>` object. Supply the method with a `PageableRequest` object and a `CancellationToken`. This will return a `PageableResponse<T>` object containing the paginated data.
+The library now exposes separate extension groups for offset pagination and cursor pagination:
 
-### Basic Pagination Example
-```C#
-    var request = new ClientPageableDto : PageableRequest
-    {
-        Id = 1,
-        Name = "John",
-        PageNumber = 1,
-        PageSize = 10,
-        OrderBy = "Name",
-        OrderDirection = OrderDirectionEnum.Ascending
-    };
+- Offset pagination: `ToPageableResponseAsync(...)` (plus `ToPageableListAsync(...)` aliases for backward compatibility)
+- Cursor pagination: `ToCursorPageableResponseAsync(...)`
 
-    var result = await _context.Clients.ToPageableListAsync(request, cancellationtoken);
+### Offset Pagination
+
+```csharp
+public class ClientPageableDto : PageableRequest
+{
+    public string? Name { get; set; }
+}
+
+var request = new ClientPageableDto
+{
+    PageNumber = 1,
+    PageSize = 10,
+    OrderBy = "Name",
+    OrderDirection = OrderDirectionEnum.Ascending
+};
+
+PageableResponse<Client> result =
+    await _context.Clients.ToPageableResponseAsync(request, cancellationToken);
 ```
 
-### Ordering with a Key Selector
-The `ToPageableListAsync<T, TKey>` method allows you to provide a key selector for ordering when the `OrderBy` property is not specified in the request. This serves as a fallback mechanism to ensure the data is still ordered appropriately.
+Fallback key selector when `OrderBy` is not supplied:
 
-#### Example
-```C#
-    var request = new ClientPageableDto : PageableRequest
-    {
-        Id = 1,
-        Name = "John",
-        PageNumber = 1,
-        PageSize = 10,
-        OrderBy = "Name",
-        OrderDirection = OrderDirectionEnum.Ascending
-    };
-
-    var result = await _context.Clients.ToPageableListAsync(x => x.Id, request, cancellationtoken);
+```csharp
+PageableResponse<Client> result =
+    await _context.Clients.ToPageableListAsync(c => c.Id, request, cancellationToken);
 ```
 
-### PageableRequest Object
-You can specify the `PageNumber`, `PageSize`, `OrderBy`, and `OrderDirection` in the `PageableRequest` object.
-```C#
-    public abstract class PageableRequest
-    {
-        public int PageNumber { get; set; } = 1;
+### Cursor Pagination
 
-        public int PageSize { get; set; } = 10;
+```csharp
+var request = new CursorPageableRequest
+{
+    PageSize = 10,
+    OrderBy = "Id",
+    OrderDirection = OrderDirectionEnum.Ascending,
+    Cursor = null
+};
 
-        public string OrderBy { get; set; } = string.Empty;
+CursorPageableResponse<Client> firstPage =
+    await _context.Clients.ToCursorPageableResponseAsync(request, cancellationToken);
 
-        public OrderDirectionEnum OrderDirection { get; set; } = OrderDirectionEnum.Ascending;
-    }
+var nextRequest = new CursorPageableRequest
+{
+    PageSize = 10,
+    OrderBy = "Id",
+    OrderDirection = OrderDirectionEnum.Ascending,
+    Cursor = firstPage.NextCursor
+};
+
+CursorPageableResponse<Client> nextPage =
+    await _context.Clients.ToCursorPageableResponseAsync(nextRequest, cancellationToken);
 ```
 
+## Request Models
 
-### PageableResponse Object
-The `PageableResponse<T>` object contains the following properties:
-```C#
-    public class PageableResponse<T>
-    {
-        public IEnumerable<T> Data { get; set; } // The data for the current page
+```csharp
+public abstract class BasePaginationRequest
+{
+    public int PageSize { get; set; } = 10;
+    public string? OrderBy { get; set; }
+    public OrderDirectionEnum OrderDirection { get; set; } = OrderDirectionEnum.Ascending;
+}
 
-        public int TotalRecords { get; set; } // The total number of records in the collection
+public abstract class PageableRequest : BasePaginationRequest
+{
+    public int PageNumber { get; set; } = 1;
+}
 
-        public int PageNumber { get; set; } // The current page number
+public class CursorPageableRequest : BasePaginationRequest
+{
+    public string? Cursor { get; set; }
+}
+```
 
-        public int PageSize { get; set; } // The number of items per page
+## Response Models
 
-        public int PageCount { get; set; } // The total number of pages
+```csharp
+public abstract class BasePaginationResponse<T>
+{
+    public IEnumerable<T> Data { get; set; } = null!;
+    public int PageSize { get; set; }
+    public string OrderBy { get; set; } = string.Empty;
+    public OrderDirectionEnum OrderDirection { get; set; }
+}
 
-        public string OrderBy { get; set; } = string.Empty; // The property the data is ordered by
+public class PageableResponse<T> : BasePaginationResponse<T>
+{
+    public int TotalRecords { get; set; }
+    public int PageNumber { get; set; }
+    public int PageCount { get; set; }
+}
 
-        public OrderDirectionEnum OrderDirection { get; set; } // The direction the data is ordered in
-    }
+public class CursorPageableResponse<T> : BasePaginationResponse<T>
+{
+    public string? NextCursor { get; set; }
+    public string? PreviousCursor { get; set; }
+    public bool HasNextPage { get; set; }
+    public bool HasPreviousPage { get; set; }
+}
 ```
