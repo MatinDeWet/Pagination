@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".github/workflows/CI.yml" />
+    <File Path="icon.png" />
+    <File Path="LICENSE.txt" />
+    <File Path="nuget-publish.yml" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="Pagination.UnitTests/Pagination.UnitTests.csproj" />
+  <Project Path="Pagination/Pagination.csproj" />
+</Solution>
