@@ -1,18 +1,17 @@
-﻿namespace Pagination.Enums
+﻿namespace Pagination.Enums;
+
+/// <summary>
+/// Sort direction used by pagination requests.
+/// </summary>
+public enum OrderDirectionEnum
 {
     /// <summary>
-    /// Specifies the direction of ordering for sorting operations.
+    /// Sort values from lowest to highest.
     /// </summary>
-    public enum OrderDirectionEnum
-    {
-        /// <summary>
-        /// Sort in ascending order.
-        /// </summary>
-        Ascending = 1,
+    Ascending = 1,
 
-        /// <summary>
-        /// Sort in descending order.
-        /// </summary>
-        Descending = 2
-    }
+    /// <summary>
+    /// Sort values from highest to lowest.
+    /// </summary>
+    Descending = 2
 }
