@@ -1,4 +1,4 @@
-﻿using Pagination.Models;
+﻿using Pagination.Models.Requests;
 
 namespace Pagination.UnitTests.Models
 {

@@ -1,34 +1,15 @@
-﻿using Bogus;
-using MockQueryable;
+﻿using MockQueryable;
 using Pagination.Enums;
 using Pagination.UnitTests.Models;
 using Shouldly;
 
 namespace Pagination.UnitTests.UnitTests
 {
-    public class ClientFixture
-    {
-        public IQueryable<Client> ClientsQueryable { get; }
-
-        public ClientFixture()
-        {
-            var faker = new Faker<Client>()
-                .RuleFor(c => c.Id, f => f.IndexFaker + 1)
-                .RuleFor(c => c.FirstName, f => f.Name.FirstName())
-                .RuleFor(c => c.LastName, f => f.Name.LastName())
-                .RuleFor(c => c.Email, (f, c) => f.Internet.Email(c.FirstName, c.LastName));
-
-            var clients = faker.Generate(1_000);
-
-            ClientsQueryable = clients.AsQueryable().BuildMock();
-        }
-    }
-
-    public class Pageabletests : IClassFixture<ClientFixture>
+    public class PageableTests : IClassFixture<ClientFixture>
     {
         private readonly IQueryable<Client> _clients;
 
-        public Pageabletests(ClientFixture fixture)
+        public PageableTests(ClientFixture fixture)
         {
             _clients = fixture.ClientsQueryable;
         }
@@ -82,14 +63,20 @@ namespace Pagination.UnitTests.UnitTests
         }
 
         [Fact]
-        public void OrderBy_ShouldOrderBySpecifiedProperty()
+        public async Task ToPageableListAsync_ShouldOrderBySpecifiedProperty()
         {
             // Arrange
-            var query = _clients;
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 100,
+                OrderBy = "FirstName",
+                OrderDirection = OrderDirectionEnum.Ascending
+            };
 
             // Act
-            var orderedQuery = query.OrderBy("FirstName");
-            var list = orderedQuery.ToList();
+            var response = await _clients.ToPageableListAsync(request, CancellationToken.None);
+            var list = response.Data.ToList();
 
             // Assert
             var expected = list.OrderBy(c => c.FirstName).ToList();
@@ -97,14 +84,20 @@ namespace Pagination.UnitTests.UnitTests
         }
 
         [Fact]
-        public void OrderByDescending_ShouldOrderBySpecifiedPropertyDescending()
+        public async Task ToPageableListAsync_ShouldOrderBySpecifiedPropertyDescending()
         {
             // Arrange
-            var query = _clients;
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 100,
+                OrderBy = "FirstName",
+                OrderDirection = OrderDirectionEnum.Descending
+            };
 
             // Act
-            var orderedQuery = query.OrderByDescending("FirstName");
-            var list = orderedQuery.ToList();
+            var response = await _clients.ToPageableListAsync(request, CancellationToken.None);
+            var list = response.Data.ToList();
 
             // Assert
             var expected = list.OrderByDescending(c => c.FirstName).ToList();
@@ -196,30 +189,42 @@ namespace Pagination.UnitTests.UnitTests
         }
 
         [Fact]
-        public void OrderBy_WhenPropertyDoesNotExist_ShouldThrowArgumentException()
+        public async Task ToPageableListAsync_WhenOrderByPropertyDoesNotExist_ShouldThrowArgumentException()
         {
             // Arrange
-            var query = _clients;
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 100,
+                OrderBy = "NonExistentProperty",
+                OrderDirection = OrderDirectionEnum.Ascending
+            };
 
             // Act
-            Action act = () => query.OrderBy("NonExistentProperty");
+            Func<Task> act = async () => { await _clients.ToPageableListAsync(request, CancellationToken.None); };
 
             // Assert
-            var exception = Should.Throw<ArgumentException>(act);
+            var exception = await Should.ThrowAsync<ArgumentException>(act);
             exception.Message.ShouldContain("NonExistentProperty");
         }
 
         [Fact]
-        public void OrderByDescending_WhenPropertyDoesNotExist_ShouldThrowArgumentException()
+        public async Task ToPageableListAsync_WhenOrderByDescendingPropertyDoesNotExist_ShouldThrowArgumentException()
         {
             // Arrange
-            var query = _clients;
+            var request = new ClientPageableDto
+            {
+                PageNumber = 1,
+                PageSize = 100,
+                OrderBy = "NonExistentProperty",
+                OrderDirection = OrderDirectionEnum.Descending
+            };
 
             // Act
-            Action act = () => query.OrderByDescending("NonExistentProperty");
+            Func<Task> act = async () => { await _clients.ToPageableListAsync(request, CancellationToken.None); };
 
             // Assert
-            var exception = Should.Throw<ArgumentException>(act);
+            var exception = await Should.ThrowAsync<ArgumentException>(act);
             exception.Message.ShouldContain("NonExistentProperty");
         }
     }
