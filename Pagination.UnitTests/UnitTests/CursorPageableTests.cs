@@ -15,26 +15,24 @@ public class CursorPageableTests : IClassFixture<ClientFixture>
     }
 
     [Fact]
-    public async Task ToCursorPageableResponseAsync_WhenFirstPage_ShouldReturnCursorMetadata()
+    public async Task ToCursorPageableResponseAsync_WithOrderedQuery_ShouldReturnFirstPageAndNextCursor()
     {
         var request = new CursorPageableRequest
         {
-            PageSize = 100,
+            PageSize = 25,
             OrderBy = "Id",
-            OrderDirection = OrderDirectionEnum.Ascending,
-            Cursor = null
+            OrderDirection = OrderDirectionEnum.Ascending
         };
 
-        var response = await _clients.ToCursorPageableResponseAsync(request, CancellationToken.None);
+        var response = await _clients.OrderBy(c => c.Id).ToCursorPageableResponseAsync(request, CancellationToken.None);
 
-        response.Data.Count().ShouldBe(100);
+        response.Data.Select(c => c.Id).ShouldBe(Enumerable.Range(1, 25));
         response.HasPreviousPage.ShouldBeFalse();
         response.HasNextPage.ShouldBeTrue();
         response.NextCursor.ShouldNotBeNullOrWhiteSpace();
+        response.PreviousCursor.ShouldBeNull();
         response.OrderBy.ShouldBe("Id");
         response.OrderDirection.ShouldBe(OrderDirectionEnum.Ascending);
-        response.Data.First().Id.ShouldBe(1);
-        response.Data.Last().Id.ShouldBe(100);
     }
 
     [Fact]
@@ -42,7 +40,7 @@ public class CursorPageableTests : IClassFixture<ClientFixture>
     {
         var firstRequest = new CursorPageableRequest
         {
-            PageSize = 100,
+            PageSize = 25,
             OrderBy = "Id",
             OrderDirection = OrderDirectionEnum.Ascending
         };
@@ -51,7 +49,7 @@ public class CursorPageableTests : IClassFixture<ClientFixture>
 
         var nextRequest = new CursorPageableRequest
         {
-            PageSize = 100,
+            PageSize = 25,
             OrderBy = "Id",
             OrderDirection = OrderDirectionEnum.Ascending,
             Cursor = firstResponse.NextCursor
@@ -60,8 +58,57 @@ public class CursorPageableTests : IClassFixture<ClientFixture>
         var nextResponse = await _clients.ToCursorPageableResponseAsync(nextRequest, CancellationToken.None);
 
         nextResponse.HasPreviousPage.ShouldBeTrue();
-        nextResponse.Data.First().Id.ShouldBe(101);
-        nextResponse.Data.Last().Id.ShouldBe(200);
+        nextResponse.PreviousCursor.ShouldBeNull();
+        nextResponse.HasNextPage.ShouldBeTrue();
+        nextResponse.Data.Select(c => c.Id).ShouldBe(Enumerable.Range(26, 25));
+    }
+
+    [Fact]
+    public async Task ToCursorPageableResponseAsync_WithDescendingOrderBy_ShouldSortDescending()
+    {
+        var request = new CursorPageableRequest
+        {
+            PageSize = 20,
+            OrderBy = "Id",
+            OrderDirection = OrderDirectionEnum.Descending
+        };
+
+        var response = await _clients.ToCursorPageableResponseAsync(request, CancellationToken.None);
+
+        response.Data.Select(c => c.Id).ShouldBe(Enumerable.Range(981, 20).Reverse());
+        response.HasNextPage.ShouldBeTrue();
+        response.HasPreviousPage.ShouldBeFalse();
+        response.NextCursor.ShouldNotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public async Task ToCursorPageableResponseAsync_WithKeySelector_ShouldUseFallbackWhenOrderByIsMissing()
+    {
+        var request = new CursorPageableRequest
+        {
+            PageSize = 1000,
+            OrderDirection = OrderDirectionEnum.Descending
+        };
+
+        var response = await _clients.ToCursorPageableResponseAsync(c => c.Email, request, CancellationToken.None);
+
+        response.HasNextPage.ShouldBeFalse();
+        response.HasPreviousPage.ShouldBeFalse();
+        response.NextCursor.ShouldBeNull();
+        response.PreviousCursor.ShouldBeNull();
+        response.Data.ShouldBe(_clients.OrderByDescending(c => c.Email).ToList());
+    }
+
+    [Fact]
+    public async Task ToCursorPageableResponseAsync_WhenRequestIsNull_ShouldThrowArgumentNullException()
+    {
+        Func<Task> act = async () =>
+        {
+            await _clients.OrderBy(c => c.Id).ToCursorPageableResponseAsync(null!, CancellationToken.None);
+        };
+
+        var exception = await Should.ThrowAsync<ArgumentNullException>(act);
+        exception.Message.ShouldContain("request");
     }
 
     [Fact]
@@ -74,7 +121,10 @@ public class CursorPageableTests : IClassFixture<ClientFixture>
             OrderDirection = OrderDirectionEnum.Ascending
         };
 
-        Func<Task> act = async () => { await _clients.ToCursorPageableResponseAsync(request, CancellationToken.None); };
+        Func<Task> act = async () =>
+        {
+            await _clients.ToCursorPageableResponseAsync(request, CancellationToken.None);
+        };
 
         var exception = await Should.ThrowAsync<ArgumentOutOfRangeException>(act);
         exception.Message.ShouldContain("PageSize");
@@ -85,14 +135,56 @@ public class CursorPageableTests : IClassFixture<ClientFixture>
     {
         var request = new CursorPageableRequest
         {
-            PageSize = 100,
+            PageSize = 10,
             OrderBy = null,
             OrderDirection = OrderDirectionEnum.Ascending
         };
 
-        Func<Task> act = async () => { await _clients.ToCursorPageableResponseAsync(request, CancellationToken.None); };
+        Func<Task> act = async () =>
+        {
+            await _clients.ToCursorPageableResponseAsync(request, CancellationToken.None);
+        };
 
         var exception = await Should.ThrowAsync<ArgumentNullException>(act);
         exception.Message.ShouldContain("OrderBy");
+    }
+
+    [Fact]
+    public async Task ToCursorPageableResponseAsync_WhenOrderByPropertyDoesNotExist_ShouldThrowArgumentException()
+    {
+        var request = new CursorPageableRequest
+        {
+            PageSize = 10,
+            OrderBy = "NonExistentProperty",
+            OrderDirection = OrderDirectionEnum.Ascending
+        };
+
+        Func<Task> act = async () =>
+        {
+            await _clients.ToCursorPageableResponseAsync(request, CancellationToken.None);
+        };
+
+        var exception = await Should.ThrowAsync<ArgumentException>(act);
+        exception.Message.ShouldContain("NonExistentProperty");
+    }
+
+    [Fact]
+    public async Task ToCursorPageableResponseAsync_WhenCursorIsInvalid_ShouldThrowArgumentException()
+    {
+        var request = new CursorPageableRequest
+        {
+            PageSize = 10,
+            OrderBy = "Id",
+            OrderDirection = OrderDirectionEnum.Ascending,
+            Cursor = "not-base64"
+        };
+
+        Func<Task> act = async () =>
+        {
+            await _clients.ToCursorPageableResponseAsync(request, CancellationToken.None);
+        };
+
+        var exception = await Should.ThrowAsync<ArgumentException>(act);
+        exception.Message.ShouldContain("Invalid cursor format");
     }
 }
