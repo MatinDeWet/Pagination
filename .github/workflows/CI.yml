@@ -40,7 +40,7 @@ jobs:
       run: dotnet test --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx" --collect:"XPlat Code Coverage" --results-directory ./TestResults
       
     - name: Generate test report
-      uses: dorny/test-reporter@v1
+      uses: dorny/test-reporter@v3
       if: success() || failure()    # run this step even if previous step failed
       with:
         name: xUnit Tests
@@ -49,7 +49,7 @@ jobs:
         fail-on-error: false
         
     - name: Upload coverage reports
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v7
       with:
         directory: ./TestResults
         fail_ci_if_error: false
