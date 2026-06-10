@@ -12,6 +12,9 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     
     steps:
     - uses: actions/checkout@v6
@@ -53,6 +56,12 @@ jobs:
     
     - name: Pack Pagination
       run: dotnet pack Pagination/Pagination.csproj --configuration Release /p:Version=${{ env.PACKAGE_VERSION }} --no-build --output nupkgs
+
+    - name: NuGet login (OIDC -> temp API key)
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ secrets.NUGET_USER }}
     
     - name: Upload packages as artifacts
       uses: actions/upload-artifact@v7
@@ -75,7 +84,7 @@ jobs:
         fi
 
         for package in "${packages[@]}"; do
-          dotnet nuget push "$package" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          dotnet nuget push "$package" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
         done
 
 permissions:
